@@ -5,7 +5,7 @@
 # git clone https://github.com/ruo91/docker-mesos /opt/docker-mesos
 #
 # - Build
-# docker build --rm -t mesos:master-`date +%Y%m%d` /opt/docker-mesos/02_mesos-master
+# docker build --rm -t mesos:master-`date +%Y%m%d` -f 02_mesos-master /opt/docker-mesos
 #
 # - Run
 # docker run -d --name="mesos-master-1" -h "mesos-master-1" mesos:master-`date +%Y%m%d`
