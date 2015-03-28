@@ -8,9 +8,9 @@ root@ruo91:~# git clone https://github.com/ruo91/docker-mesos /opt/docker-mesos
 #### - Build
 ```
 root@ruo91:~# cd /opt/docker-mesos
-root@ruo91:~# docker build --rm -t mesos:slave 01_mesos-slave
-root@ruo91:~# docker build --rm -t mesos:master 02_mesos-master
-root@ruo91:~# docker build --rm -t mesos:marathon 03_mesos-marathon-framework
+root@ruo91:~# docker build --rm -t mesos:slave -f 01_mesos-slave .
+root@ruo91:~# docker build --rm -t mesos:master -f 02_mesos-master .
+root@ruo91:~# docker build --rm -t mesos:marathon -f 03_mesos-marathon-framework .
 ```
 #### - Run
 - Mesos Slave
