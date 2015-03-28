@@ -57,7 +57,6 @@ RUN curl -XGET https://github.com/mesosphere/marathon/tags | grep tag-name > /tm
  && tar xzvf $MARATHON_VER.tar.gz \
  && mv marathon* marathon \
  && cd marathon && sbt assembly \
- && mv marathon/bin/marathon marathon/bin/marathon
  && rm -f $MARATHON_VER.tar.gz
 
 RUN echo "#!/bin/bash" >> /etc/mesos/mesos-marathon.sh \
