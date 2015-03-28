@@ -99,35 +99,35 @@ Starting Mesos
 - Mesos Slave
 ```
 root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-slave-1` \
-"/etc/mesos/mesos-slave.sh &"
+"/etc/mesos/mesos-slave.sh"
 ```
 ```
 root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-slave-2` \
-"/etc/mesos/mesos-slave.sh &"
+"/etc/mesos/mesos-slave.sh"
 ```
 ```
 root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-slave-3` \
-"/etc/mesos/mesos-slave.sh &"
+"/etc/mesos/mesos-slave.sh"
 ```
 
 - Mesos Master
 ```
 root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-master-1` \
-"/etc/mesos/mesos-master.sh &"
+"/etc/mesos/mesos-master.sh"
 ```
 ```
 root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-master-2` \
-"/etc/mesos/mesos-master.sh &"
+"/etc/mesos/mesos-master.sh"
 ```
 ```
 root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-master-3` \
-"/etc/mesos/mesos-master.sh &"
+"/etc/mesos/mesos-master.sh"
 ```
 
 - Mesos Marathon
 ```
 root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-marathon` \
-"/etc/mesos/mesos-marathon.sh &"
+"/etc/mesos/mesos-marathon.sh"
 ```
 
 Mesos on Docker
