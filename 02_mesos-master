@@ -55,7 +55,7 @@ RUN echo "#!/bin/bash" >> /etc/mesos/mesos-master.sh \
  && echo "--cluster=$CLUSTER_NAME \\" >>  /etc/mesos/mesos-master.sh \
  && echo "--quorum=$ZK_QUORUM_NUM \\" >>  /etc/mesos/mesos-master.sh \
  && echo "--work_dir=$MESOS_WORK_DIR \\" >>  /etc/mesos/mesos-master.sh \
- && echo "--zk=zk://$ZK_SERVER_1:$ZK_PORT,$ZK_SERVER_2:$ZK_PORT,$ZK_SERVER_3:$ZK_PORT/$ZK_ZNODE_PATH" >> /etc/mesos/mesos-master.sh \
+ && echo "--zk=zk://$ZK_SERVER_1:$ZK_PORT,$ZK_SERVER_2:$ZK_PORT,$ZK_SERVER_3:$ZK_PORT/$ZK_ZNODE_PATH \&" >> /etc/mesos/mesos-master.sh \
  && chmod a+x /etc/mesos/mesos-master.sh
 
 # Setting for supervisor
