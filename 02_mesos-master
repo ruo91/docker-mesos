@@ -51,6 +51,7 @@ ENV CLUSTER_NAME mesos-cluster
 ENV MESOS_WORK_DIR /var/lib/mesos
 
 RUN echo "#!/bin/bash" >> /etc/mesos/mesos-master.sh \
+ && echo "mesos-master \\" >>  /etc/mesos/mesos-master.sh \
  && echo "--cluster=$CLUSTER_NAME \\" >>  /etc/mesos/mesos-master.sh \
  && echo "--quorum=$ZK_QUORUM_NUM \\" >>  /etc/mesos/mesos-master.sh \
  && echo "--work_dir=$MESOS_WORK_DIR \\" >>  /etc/mesos/mesos-master.sh \
