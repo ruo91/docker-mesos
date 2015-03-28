@@ -5,7 +5,7 @@
 # git clone https://github.com/ruo91/docker-mesos /opt/docker-mesos
 #
 # - Build
-# docker build --rm -t mesos:marathon-`date +%Y%m%d` /opt/docker-mesos/03_mesos-marathon-framework
+# docker build --rm -t mesos:marathon-`date +%Y%m%d` -f 03_mesos-marathon-framework /opt/docker-mesos
 #
 # - Run
 # docker run -d --name="mesos-marathon" -h "mesos-marathon" mesos:marathon-`date +%Y%m%d`
