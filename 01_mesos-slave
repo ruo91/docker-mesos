@@ -5,7 +5,7 @@
 # git clone https://github.com/ruo91/docker-mesos /opt/docker-mesos
 #
 # - Build
-# docker build --rm -t mesos:slave-`date +%Y%m%d` /opt/docker-mesos/01_mesos-slave
+# docker build --rm -t mesos:slave-`date +%Y%m%d` -f 01_mesos-slave /opt/docker-mesos
 #
 # - Run
 # docker run -d --name="mesos-slave-1" -h "mesos-slave-1" mesos:slave-`date +%Y%m%d`
