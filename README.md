@@ -1,11 +1,18 @@
 Dockerfile - Apache Mesos (test only)
 =====================================
 ![0]
+
+# - About mesos?
+------------------
+http://www.yongbok.net/blog/apache-mesos-cluster-resource-management/
+
 #### - Clone
+------------
 ```
 root@ruo91:~# git clone https://github.com/ruo91/docker-mesos /opt/docker-mesos
 ```
 #### - Build
+------------
 ```
 root@ruo91:~# cd /opt/docker-mesos
 root@ruo91:~# docker build --rm -t mesos:slave -f 01_mesos-slave .
@@ -13,6 +20,7 @@ root@ruo91:~# docker build --rm -t mesos:master -f 02_mesos-master .
 root@ruo91:~# docker build --rm -t mesos:marathon -f 03_mesos-marathon-framework .
 ```
 #### - Run
+------------
 - Mesos Slave
 ```
 root@ruo91:~# docker run -d --name="mesos-slave-1" -h "mesos-slave-1" mesos:slave
@@ -22,9 +30,9 @@ root@ruo91:~# docker run -d --name="mesos-slave-3" -h "mesos-slave-3" mesos:slav
 
 - Mesos Master
 ```
-root@ruo91:~# docker run -d --name="mesos-master-1" -h "mesos-master-1" -p 5050:5050 mesos:master
-root@ruo91:~# docker run -d --name="mesos-master-2" -h "mesos-master-2" -p 5050:5050 mesos:master
-root@ruo91:~# docker run -d --name="mesos-master-3" -h "mesos-master-3" -p 5050:5050 mesos:master
+root@ruo91:~# docker run -d --name="mesos-master-1" -h "mesos-master-1" mesos:master
+root@ruo91:~# docker run -d --name="mesos-master-2" -h "mesos-master-2" mesos:master
+root@ruo91:~# docker run -d --name="mesos-master-3" -h "mesos-master-3" mesos:master
 ```
 
 - Mesos Marathon
@@ -32,8 +40,8 @@ root@ruo91:~# docker run -d --name="mesos-master-3" -h "mesos-master-3" -p 5050:
 root@ruo91:~# docker run -d --name="mesos-marathon" -h "mesos-marathon" -p 8080:8080 mesos:marathon
 ```
 
-Setting up
-==========
+# - Setting up
+-------------
 #### - IP of container
 - Mesos Master
 ```
@@ -94,8 +102,8 @@ root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-ma
 && echo '172.17.0.60 mesos-master-3' >> /etc/hosts"
 ```
 
-Starting Mesos
-==============
+# - Starting Mesos
+------------------
 - Mesos Slave
 ```
 root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-slave-1` \
@@ -130,18 +138,25 @@ root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-ma
 "/etc/mesos/mesos-marathon.sh"
 ```
 
-Mesos on Docker
-=================
+# -Mesos on Docker
+--------------------
+- Default port of Mesos Master Web UI: 5050 
+- Default port of Marathon Web UI: 8080 
+
 Mesos Master & Slave
+----------------------
 ![Mesos master and slave][1]
 
 Mesos Master Web UI
+----------------------
 ![Mesos marathon][2]
 
 Mesos Master Web UI - Slave
+-----------------------------
 ![Mesos marathon][3]
 
 Mesos Marathon
+----------------
 ![Mesos marathon][4]
 
 Thanks. :-)
