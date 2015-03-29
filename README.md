@@ -46,7 +46,7 @@ mesos-master-1 mesos-master-2 mesos-master-3
 172.17.0.60
 ```
  - Add hostname & ZooKeeper MyID, Start
- SSH passwords: mesos
+ - SSH passwords: mesos
 ```
 root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-master-1` \
 "echo '172.17.0.59 mesos-master-2' >> /etc/hosts \
