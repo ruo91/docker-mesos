@@ -2,161 +2,138 @@ Dockerfile - Apache Mesos (test only)
 =====================================
 ![0]
 
-# - About mesos?
-------------------
+# - About Apache Mesos?
 http://www.yongbok.net/blog/apache-mesos-cluster-resource-management/
 
 #### - Clone
-------------
-```
+```sh
 root@ruo91:~# git clone https://github.com/ruo91/docker-mesos /opt/docker-mesos
 ```
 #### - Build
-------------
-```
+```sh
 root@ruo91:~# cd /opt/docker-mesos
-root@ruo91:~# docker build --rm -t mesos:slave -f 01_mesos-slave .
-root@ruo91:~# docker build --rm -t mesos:master -f 02_mesos-master .
-root@ruo91:~# docker build --rm -t mesos:marathon -f 03_mesos-marathon-framework .
+root@ruo91:~# ./docker-mesos.sh
 ```
+```sh
+Usage: ./docker-mesos.sh [Options]
+
+- Options
+b, build     : Start ZooKeeper
+r, run       : Start Mesos Master
+rm           : Start Mesos Slave
+```
+```sh
+root@ruo91:~# ./docker-mesos.sh build
+```
+
 #### - Run
-------------
-- Mesos Slave
-```
-root@ruo91:~# docker run -d --name="mesos-slave-1" -h "mesos-slave-1" mesos:slave
-root@ruo91:~# docker run -d --name="mesos-slave-2" -h "mesos-slave-2" mesos:slave
-root@ruo91:~# docker run -d --name="mesos-slave-3" -h "mesos-slave-3" mesos:slave
+```sh
+root@ruo91:~# ./docker-mesos.sh run
 ```
 
-- Mesos Master
+#### - Start Daemon
+- Usage
+```sh
+root@ruo91:~# docker exec mesos-master-1 /bin/bash mesos.sh 
 ```
-root@ruo91:~# docker run -d --name="mesos-master-1" -h "mesos-master-1" mesos:master
-root@ruo91:~# docker run -d --name="mesos-master-2" -h "mesos-master-2" mesos:master
-root@ruo91:~# docker run -d --name="mesos-master-3" -h "mesos-master-3" mesos:master
+```sh
+Usage: mesos.sh [Options] [Arguments]
+
+- Options
+zk, zookeeper      : Start ZooKeeper
+mm, mesos-master   : Start Mesos Master
+ms, mesos-slave    : Start Mesos Slave
+ma, marathon       : Start Mesos Marathon
+k, kill            : kill of process
+
+- Arguments
+s, start           : Start commands
+m, manual          : Manual commands
+
+zk, zookeeper      : kill of zookeeper (k or kill option only.)
+                     ex) mesos.sh k zk or mesos.sh kill zookeeper
+
+mm, mesos-master   : kill of mesos-master (k or kill option only.)
+                     ex) mesos.sh k mm or mesos.sh kill mesos-master
+
+ms, mesos-slave    : kill of mesos-slave (k or kill option only.)
+                     ex) mesos.sh k ms or mesos.sh kill mesos-slave
+
+ma, marathon       : kill of marathon (k or kill option only.)
+                     ex) mesos.sh k ma or mesos.sh kill marathon
 ```
 
-- Mesos Marathon
+- Start ZooKeeper
+```sh
+root@ruo91:~# docker exec mesos-master-1 /bin/bash mesos.sh zk start
 ```
-root@ruo91:~# docker run -d --name="mesos-marathon" -h "mesos-marathon" -p 8080:8080 mesos:marathon
+```sh
+root@ruo91:~# docker exec mesos-master-2 /bin/bash mesos.sh zk start
 ```
-
-# - Setting up
--------------
-#### - IP of container
-- Mesos Master
+```sh
+root@ruo91:~# docker exec mesos-master-3 /bin/bash mesos.sh zk start
 ```
-root@ruo91:~# docker inspect -f '{{ .NetworkSettings.IPAddress }}' \
-mesos-master-1 mesos-master-2 mesos-master-3
-```
-```
-172.17.0.58
-172.17.0.59
-172.17.0.60
-```
- - Add hostname & ZooKeeper MyID, Start
- - SSH passwords: mesos
-```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-master-1` \
-"echo '172.17.0.59 mesos-master-2' >> /etc/hosts \
-&& echo '172.17.0.60 mesos-master-3' >> /etc/hosts \
-&& echo '1' > /etc/zookeeper/conf/myid && service zookeeper start"
-```
-```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-master-2` \
-"echo '172.17.0.58 mesos-master-1' >> /etc/hosts \
-&& echo '172.17.0.60 mesos-master-3' >> /etc/hosts \
-&& echo '2' > /etc/zookeeper/conf/myid && service zookeeper start"
-```
-```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-master-3` \
-"echo '172.17.0.58 mesos-master-1' >> /etc/hosts \
-&& echo '172.17.0.59 mesos-master-2' >> /etc/hosts \
-&& echo '3' > /etc/zookeeper/conf/myid && service zookeeper start"
+```sh
+Start ZooKeeper...
+done
 ```
 
-- Mesos Slave
+- Start Mesos Master
+```sh
+root@ruo91:~# docker exec mesos-master-1 /bin/bash mesos.sh mm start
 ```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-slave-1` \
-"echo '172.17.0.58 mesos-master-1' >> /etc/hosts \
-&& echo '172.17.0.59 mesos-master-2' >> /etc/hosts \
-&& echo '172.17.0.60 mesos-master-3' >> /etc/hosts"
+```sh
+root@ruo91:~# docker exec mesos-master-2 /bin/bash mesos.sh mm start
 ```
+```sh
+root@ruo91:~# docker exec mesos-master-3 /bin/bash mesos.sh mm start
 ```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-slave-2` \
-"echo '172.17.0.58 mesos-master-1' >> /etc/hosts \
-&& echo '172.17.0.59 mesos-master-2' >> /etc/hosts \
-&& echo '172.17.0.60 mesos-master-3' >> /etc/hosts"
-```
-```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-slave-3` \
-"echo '172.17.0.58 mesos-master-1' >> /etc/hosts \
-&& echo '172.17.0.59 mesos-master-2' >> /etc/hosts \
-&& echo '172.17.0.60 mesos-master-3' >> /etc/hosts"
+```sh
+Start Mesos Master...
+done
 ```
 
-- Mesos Marathon
+- Start Mesos Slave
+```sh
+root@ruo91:~# docker exec mesos-slave-1 /bin/bash mesos.sh ms start
 ```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-marathon` \
-"echo '172.17.0.58 mesos-master-1' >> /etc/hosts \
-&& echo '172.17.0.59 mesos-master-2' >> /etc/hosts \
-&& echo '172.17.0.60 mesos-master-3' >> /etc/hosts"
+```sh
+root@ruo91:~# docker exec mesos-slave-2 /bin/bash mesos.sh ms start
 ```
-
-# - Starting Mesos
-------------------
-- Mesos Slave
+```sh
+root@ruo91:~# docker exec mesos-slave-3 /bin/bash mesos.sh ms start
 ```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-slave-1` \
-"/etc/mesos/mesos-slave.sh"
+```sh
+root@ruo91:~# docker exec mesos-slave-4 /bin/bash mesos.sh ms start
 ```
-```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-slave-2` \
-"/etc/mesos/mesos-slave.sh"
-```
-```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-slave-3` \
-"/etc/mesos/mesos-slave.sh"
+```sh
+Start Mesos Slave...
+done
 ```
 
-- Mesos Master
+- Start Marathon
+```sh
+root@ruo91:~# docker exec mesos-marathon /bin/bash mesos.sh ma start
 ```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-master-1` \
-"/etc/mesos/mesos-master.sh"
-```
-```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-master-2` \
-"/etc/mesos/mesos-master.sh"
-```
-```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-master-3` \
-"/etc/mesos/mesos-master.sh"
-```
-
-- Mesos Marathon
-```
-root@ruo91:~# ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-marathon` \
-"/etc/mesos/mesos-marathon.sh"
+```sh
+Start Mesos Marathon...
+done
 ```
 
 # -Mesos on Docker
---------------------
-- Default port of Mesos Master Web UI: 5050 
+- Default port of Mesos Master Web UI: 5050
 - Default port of Marathon Web UI: 8080 
 
 Mesos Master & Slave
-----------------------
 ![Mesos master and slave][1]
 
 Mesos Master Web UI
-----------------------
 ![Mesos marathon][2]
 
 Mesos Master Web UI - Slave
------------------------------
 ![Mesos marathon][3]
 
 Mesos Marathon
-----------------
 ![Mesos marathon][4]
 
 Thanks. :-)
