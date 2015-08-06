@@ -1,3 +1,5 @@
+# Title: Testing scripts
+# Maintainer: Yongbok Kim (ruo91@yongbok.net)
 #!/bin/bash
 
 function f_build {
