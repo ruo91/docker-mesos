@@ -52,12 +52,11 @@ ENV ZK_SERVER_3 mesos-master-3
 
 RUN curl -XGET https://github.com/mesosphere/marathon/tags | grep tag-name > /tmp/marathon_tag \
  && sed -e 's/<[^>]*>//g' /tmp/marathon_tag > /tmp/marathon_ver \
- && MARATHON_VER=`sed -e 's/      v/v/g' /tmp/marathon_ver | head -n 1` && rm -f /tmp/marathon_* \
+ && MARATHON_VER=$(sed -e 's/      //g' /tmp/marathon_ver | head -n 1) && rm -f /tmp/marathon_* \
  && cd $SRC_DIR && curl -LO "https://github.com/mesosphere/marathon/archive/$MARATHON_VER.tar.gz" \
- && tar xzvf $MARATHON_VER.tar.gz \
+ && tar xzvf $MARATHON_VER.tar.gz && rm -f $MARATHON_VER.tar.gz \
  && mv marathon* marathon \
- && cd marathon && sbt assembly \
- && rm -f $MARATHON_VER.tar.gz
+ && cd marathon && sbt assembly
 
 RUN echo "#!/bin/bash" >> /etc/mesos/mesos-marathon.sh \
  && echo "export MESOS_NATIVE_LIBRARY=/usr/lib" >> /etc/mesos/mesos-marathon.sh \
