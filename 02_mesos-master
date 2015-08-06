@@ -5,12 +5,12 @@
 # git clone https://github.com/ruo91/docker-mesos /opt/docker-mesos
 #
 # - Build
-# docker build --rm -t mesos:master-`date +%Y%m%d` -f 02_mesos-master /opt/docker-mesos
+# docker build --rm -t mesos:master -f 02_mesos-master /opt/docker-mesos
 #
 # - Run
-# docker run -d --name="mesos-master-1" -h "mesos-master-1" mesos:master-`date +%Y%m%d`
-# docker run -d --name="mesos-master-2" -h "mesos-master-2" mesos:master-`date +%Y%m%d`
-# docker run -d --name="mesos-master-3" -h "mesos-master-3" mesos:master-`date +%Y%m%d`
+# docker run -d --name="mesos-master-1" -h "mesos-master-1" mesos:master
+# docker run -d --name="mesos-master-2" -h "mesos-master-2" mesos:master
+# docker run -d --name="mesos-master-3" -h "mesos-master-3" mesos:master
 #
 # - SSH
 # ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-master-1`
@@ -32,31 +32,9 @@ RUN apt-get update && apt-get install -y openssh-server supervisor nano add-apt-
  && echo "deb http://repos.mesosphere.io/ubuntu trusty main" > /etc/apt/sources.list.d/mesosphere.list \
  && apt-get update && apt-get install -y mesos
 
-# ZooKeeper Quorum
-ENV ZK_LEADER_PORT 3888
-ENV ZK_FOLLOW_PORT 2888
-ENV ZK_SERVER_1 mesos-master-1
-ENV ZK_SERVER_2 mesos-master-2
-ENV ZK_SERVER_3 mesos-master-3
-
-RUN sed -i '/^\#server\.1/ s:.*:server\.1\='"$ZK_SERVER_1"'\:'"$ZK_FOLLOW_PORT"'\:'"$ZK_LEADER_PORT"':' /etc/zookeeper/conf/zoo.cfg \
- && sed -i '/^\#server\.2/ s:.*:server\.2\='"$ZK_SERVER_2"'\:'"$ZK_FOLLOW_PORT"'\:'"$ZK_LEADER_PORT"':' /etc/zookeeper/conf/zoo.cfg \
- && sed -i '/^\#server\.3/ s:.*:server\.3\='"$ZK_SERVER_3"'\:'"$ZK_FOLLOW_PORT"'\:'"$ZK_LEADER_PORT"':' /etc/zookeeper/conf/zoo.cfg
-
-# Mesos Master
-ENV ZK_PORT 2181
-ENV ZK_QUORUM_NUM 2
-ENV ZK_ZNODE_PATH mesos
-ENV CLUSTER_NAME mesos-cluster
-ENV MESOS_WORK_DIR /var/lib/mesos
-
-RUN echo "#!/bin/bash" >> /etc/mesos/mesos-master.sh \
- && echo "mesos-master \\" >>  /etc/mesos/mesos-master.sh \
- && echo "--cluster=$CLUSTER_NAME \\" >>  /etc/mesos/mesos-master.sh \
- && echo "--quorum=$ZK_QUORUM_NUM \\" >>  /etc/mesos/mesos-master.sh \
- && echo "--work_dir=$MESOS_WORK_DIR \\" >>  /etc/mesos/mesos-master.sh \
- && echo "--zk=zk://$ZK_SERVER_1:$ZK_PORT,$ZK_SERVER_2:$ZK_PORT,$ZK_SERVER_3:$ZK_PORT/$ZK_ZNODE_PATH \&" >> /etc/mesos/mesos-master.sh \
- && chmod a+x /etc/mesos/mesos-master.sh
+# Add mesos scripts
+ADD conf/mesos.sh /bin/mesos.sh
+RUN chmod a+x /bin/mesos.sh
 
 # Setting for supervisor
 RUN mkdir -p /var/log/supervisor

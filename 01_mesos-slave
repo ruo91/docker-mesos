@@ -38,17 +38,9 @@ RUN apt-get update && apt-get install -y openssh-server supervisor nano add-apt-
  && echo "deb http://repos.mesosphere.io/ubuntu trusty main" > /etc/apt/sources.list.d/mesosphere.list \
  && apt-get update && apt-get install -y mesos
 
-# Mesos Slave
-ENV ZK_PORT 2181
-ENV ZK_ZNODE_PATH mesos
-ENV ZK_SERVER_1 mesos-master-1
-ENV ZK_SERVER_2 mesos-master-2
-ENV ZK_SERVER_3 mesos-master-3
-
-RUN echo "#!/bin/bash" >> /etc/mesos/mesos-slave.sh \
- && echo "mesos-slave \\" >> /etc/mesos/mesos-slave.sh \
- && echo "--master=zk://$ZK_SERVER_1:$ZK_PORT,$ZK_SERVER_2:$ZK_PORT,$ZK_SERVER_3:$ZK_PORT/$ZK_ZNODE_PATH \&" >> /etc/mesos/mesos-slave.sh \
- && chmod a+x /etc/mesos/mesos-slave.sh
+# ADD mesos scripts
+ADD conf/mesos.sh /bin/mesos.sh
+RUN chmod a+x /bin/mesos.sh
 
 # Setting for supervisor
 RUN mkdir -p /var/log/supervisor
@@ -63,8 +55,8 @@ RUN sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 RUN echo 'root:mesos' |chpasswd
 
 # Ports
-# SSH: 22, ZooKeeper Port: 2181
-EXPOSE 22 2181
+# SSH: 22
+EXPOSE 22
 
 # Supervisor
 CMD ["/usr/bin/supervisord"]

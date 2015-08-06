@@ -5,10 +5,10 @@
 # git clone https://github.com/ruo91/docker-mesos /opt/docker-mesos
 #
 # - Build
-# docker build --rm -t mesos:marathon-`date +%Y%m%d` -f 03_mesos-marathon-framework /opt/docker-mesos
+# docker build --rm -t mesos:marathon -f 03_mesos-marathon-framework /opt/docker-mesos
 #
 # - Run
-# docker run -d --name="mesos-marathon" -h "mesos-marathon" mesos:marathon-`date +%Y%m%d`
+# docker run -d --name="mesos-marathon" -h "mesos-marathon" mesos:marathon
 #
 # - SSH
 # ssh `docker inspect -f '{{ .NetworkSettings.IPAddress }}' mesos-marathon`
@@ -23,7 +23,7 @@ MAINTAINER Yongbok Kim <ruo91@yongbok.net>
 RUN sed -i 's/archive.ubuntu.com/kr.archive.ubuntu.com/g' /etc/apt/sources.list
 
 # The last update and install package for mesos
-RUN apt-get update && apt-get install -y openssh-server supervisor nano curl add-apt-key \
+RUN apt-get update && apt-get install -y openssh-server supervisor nano curl git-core add-apt-key \
  && apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF \
  && echo "deb http://repos.mesosphere.io/ubuntu trusty main" > /etc/apt/sources.list.d/mesosphere.list \
  && apt-get update && apt-get install -y mesos openjdk-7-jdk
@@ -31,7 +31,7 @@ RUN apt-get update && apt-get install -y openssh-server supervisor nano curl add
 # Scala
 # Requirements for scala version: 2.11+
 # https://github.com/scala/scala/tags or http://www.scala-lang.org/files/archive
-ENV SCALA_VER 2.11.6
+ENV SCALA_VER 2.11.7
 RUN cd $SRC_DIR && curl -LO "http://www.scala-lang.org/files/archive/scala-$SCALA_VER.deb" \
  && dpkg -i scala*.deb
 
@@ -43,33 +43,26 @@ RUN cd $SRC_DIR && curl -LO "https://dl.bintray.com/sbt/debian/sbt-$SBT_VER.deb"
 
 # Mesos Marathon
 ENV SRC_DIR /opt
-ENV ZK_PORT 2181
-ENV ZK_ZNODE_PATH mesos
-ENV ZK_MARATHON_ZNODE_PATH marathon
-ENV ZK_SERVER_1 mesos-master-1
-ENV ZK_SERVER_2 mesos-master-2
-ENV ZK_SERVER_3 mesos-master-3
-
-RUN curl -XGET https://github.com/mesosphere/marathon/tags | grep tag-name > /tmp/marathon_tag \
- && sed -e 's/<[^>]*>//g' /tmp/marathon_tag > /tmp/marathon_ver \
- && MARATHON_VER=$(sed -e 's/      //g' /tmp/marathon_ver | head -n 1) && rm -f /tmp/marathon_* \
- && cd $SRC_DIR && curl -LO "https://github.com/mesosphere/marathon/archive/$MARATHON_VER.tar.gz" \
+ENV MARATHON_VER v0.9.1
+RUN cd $SRC_DIR && curl -LO "https://github.com/mesosphere/marathon/archive/$MARATHON_VER.tar.gz" \
  && tar xzvf $MARATHON_VER.tar.gz && rm -f $MARATHON_VER.tar.gz \
  && mv marathon* marathon \
  && cd marathon && sbt assembly
 
-RUN echo "#!/bin/bash" >> /etc/mesos/mesos-marathon.sh \
- && echo "export MESOS_NATIVE_LIBRARY=/usr/lib" >> /etc/mesos/mesos-marathon.sh \
- && echo "$SRC_DIR/marathon/bin/start \\" >> /etc/mesos/mesos-marathon.sh \
- && echo "--master $ZK_SERVER_1:$ZK_PORT,$ZK_SERVER_2:$ZK_PORT,$ZK_SERVER_3:$ZK_PORT/$ZK_ZNODE_PATH \\" >> /etc/mesos/mesos-marathon.sh \
- && echo "--zk zk://$ZK_SERVER_1:$ZK_PORT,$ZK_SERVER_2:$ZK_PORT,$ZK_SERVER_3:$ZK_PORT/$ZK_MARATHON_ZNODE_PATH \&" >> /etc/mesos/mesos-marathon.sh \
- && chmod a+x /etc/mesos/mesos-marathon.sh
+# latest
+#RUN curl -XGET https://github.com/mesosphere/marathon/tags | grep tag-name > /tmp/marathon_tag \
+# && sed -e 's/<[^>]*>//g' /tmp/marathon_tag > /tmp/marathon_ver \
+# && MARATHON_VER=$(sed -e 's/      //g' /tmp/marathon_ver | head -n 1) && rm -f /tmp/marathon_* \
 
 # LANG
 RUN echo 'export LANG=C' >> /etc/profile \
  && echo 'export LC_ALL=C' >> /etc/profile \
  && echo '' >> /etc/profile \
  && locale-gen en_US.UTF-8
+
+# Add mesos scripts
+ADD conf/mesos.sh /bin/mesos.sh
+RUN chmod a+x /bin/mesos.sh
 
 # Setting for supervisor
 RUN mkdir -p /var/log/supervisor
