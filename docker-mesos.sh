@@ -118,9 +118,9 @@ function f_help {
   echo "Usage: $ARG_0 [Options]"
   echo
   echo "- Options"
-  echo "b, build     : Start ZooKeeper"
-  echo "r, run       : Start Mesos Master"
-  echo "rm           : Start Mesos Slave"
+  echo "b, build     : Build images"
+  echo "r, run       : Run containers"
+  echo "rm           : Stop and remove container & images"
   echo
 }
 
