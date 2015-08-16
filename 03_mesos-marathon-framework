@@ -26,33 +26,52 @@ RUN sed -i 's/archive.ubuntu.com/kr.archive.ubuntu.com/g' /etc/apt/sources.list
 RUN apt-get update && apt-get install -y openssh-server supervisor nano curl git-core add-apt-key \
  && apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF \
  && echo "deb http://repos.mesosphere.io/ubuntu trusty main" > /etc/apt/sources.list.d/mesosphere.list \
- && apt-get update && apt-get install -y mesos openjdk-7-jdk
+ && apt-get update && apt-get install -y mesos
+
+# Variable
+ENV SRC_DIR /opt
+WORKDIR $SRC_DIR
+
+# JDK
+ENV JDK_URL http://download.oracle.com/otn-pub/java/jdk
+ENV JDK_VER 8u51-b16
+ENV JDK_VER2 jdk-8u51
+ENV JAVA_HOME /usr/local/jdk
+ENV PATH $PATH:$JAVA_HOME/bin
+RUN curl -LO "$JDK_URL/$JDK_VER/$JDK_VER2-linux-x64.tar.gz" -H 'Cookie: oraclelicense=accept-securebackup-cookie' \
+ && tar -xzf *.tar.gz && rm -f *.tar.gz && mv jdk* $JAVA_HOME && rm -f $(which java) \
+ && echo '' >> /etc/profile \
+ && echo '# JDK' >> /etc/profile \
+ && echo "export JAVA_HOME=$JAVA_HOME" >> /etc/profile \
+ && echo 'export PATH="$PATH:$JAVA_HOME/bin"' >> /etc/profile \
+ && echo '' >> /etc/profile
 
 # Scala
 # Requirements for scala version: 2.11+
 # https://github.com/scala/scala/tags or http://www.scala-lang.org/files/archive
 ENV SCALA_VER 2.11.7
-RUN cd $SRC_DIR && curl -LO "http://www.scala-lang.org/files/archive/scala-$SCALA_VER.deb" \
+RUN curl -LO "http://www.scala-lang.org/files/archive/scala-$SCALA_VER.deb" \
  && dpkg -i scala*.deb
 
 # SBT (Scala Build Tool)
 # http://www.scala-sbt.org/0.13/tutorial/Installing-sbt-on-Linux.html
-ENV SBT_VER 0.13.8
-RUN cd $SRC_DIR && curl -LO "https://dl.bintray.com/sbt/debian/sbt-$SBT_VER.deb" \
- && dpkg -i sbt*.deb && rm -f *.deb
+ENV SBT_VER 0.13.9
+RUN curl -LO "https://dl.bintray.com/sbt/debian/sbt-$SBT_VER.deb" \
+ && dpkg -i sbt*.deb
 
 # Mesos Marathon
-ENV SRC_DIR /opt
-ENV MARATHON_VER v0.9.1
-RUN cd $SRC_DIR && curl -LO "https://github.com/mesosphere/marathon/archive/$MARATHON_VER.tar.gz" \
- && tar xzvf $MARATHON_VER.tar.gz && rm -f $MARATHON_VER.tar.gz \
- && mv marathon* marathon \
- && cd marathon && sbt assembly
-
-# latest
-#RUN curl -XGET https://github.com/mesosphere/marathon/tags | grep tag-name > /tmp/marathon_tag \
-# && sed -e 's/<[^>]*>//g' /tmp/marathon_tag > /tmp/marathon_ver \
-# && MARATHON_VER=$(sed -e 's/      //g' /tmp/marathon_ver | head -n 1) && rm -f /tmp/marathon_* \
+# Issue: Web UI 403 Fobidden
+# https://github.com/mesosphere/marathon/issues/1670
+ENV MARATHON_HOME $SRD_DIR/marathon
+ENV PATH $PATH:$MARATHON_HOME/bin
+ENV MARATHON_VER releasing-0.10
+RUN git clone https://github.com/mesosphere/marathon.git \
+ && cd marathon \
+ && git checkout -b $MARATHON_VER origin/$MARATHON_VER \
+ && git submodule update --init --recursive \
+ && sbt assembly \
+ && mv target/scala-*/marathon-*.jar $SRC_DIR \
+ && cd $SRC_DIR && rm -rf marathon
 
 # LANG
 RUN echo 'export LANG=C' >> /etc/profile \
