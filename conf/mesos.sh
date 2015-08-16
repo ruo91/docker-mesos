@@ -21,7 +21,7 @@ MESOS_WORK_DIR="/var/lib/mesos"
 # Mesos Marathon
 MESOS_MARATHON_IP="172.17.2.8"
 ZK_MARATHON_ZNODE_PATH="marathon"
-MESOS_MARATHON_BINARY="/opt/marathon/bin/start"
+MESOS_MARATHON_BINARY="java -jar /opt/marathon-*.jar"
 
 # Logs
 MESOS_SLAVE_LOGS="/tmp/mesos-slave.log"
